@@ -7,16 +7,16 @@ import pandas as pd
 import time
 from selenium.webdriver.chrome.options import Options
 import pandas as pd
-import sys 
-from selenium.webdriver.chrome.service import Service 
-from dotenv import load_dotenv 
+import sys
+from selenium.webdriver.chrome.service import Service
+from dotenv import load_dotenv
 load_dotenv()
 options = Options()
 options.headless = True
-service = Service(os.getenv("CHROME_DRIVER")) 
+service = Service(os.getenv("CHROME_DRIVER"))
 print(os.getenv("CHROME_DRIVER"))
 driver = webdriver.Chrome(
-   service=service, options=options)
+    service=service, options=options)
 
 
 def startup_india_scraping():
@@ -45,47 +45,43 @@ def startup_india_scraping():
                     mapping[name] = link
             count += 1
         except:
-            pass 
-    
-    with open('startup_india/links.json', 'w', encoding='utf-8') as f:
+            pass
+
+    with open('data/startup_india/links.json', 'w', encoding='utf-8') as f:
         json.dump(mapping, f, ensure_ascii=False, indent=4)
 
-    rows = pd.DataFrame({'Name of Startup': names, 'Link': links})
-    rows.to_csv("startup_india/test_links.csv")
+    rows = pd.DataFrame({'Name': names, 'Link': links})
+    rows.to_csv("data/startup_india/test_links.csv", index=False)
 
-def startup1000():  
-    city = [] 
-    links =[] 
-    name =[]
+
+def startup1000():
+    city = []
+    links = []
+    name = []
     page = f"https://10000startups.com/our-startups"
-    driver.get(page) 
+    driver.get(page)
     content = driver.page_source
-    soup = BeautifulSoup(content, features='html5lib')  
+    soup = BeautifulSoup(content, features='html5lib')
     startup_cards = soup.find(
-                'div', class_='container startup-d') 
-    list_of_cities = startup_cards.find_all('ul')  
-    for cities in list_of_cities:   
+        'div', class_='container startup-d')
+    list_of_cities = startup_cards.find_all('ul')
+    for cities in list_of_cities:
         list_of_startups = cities.find_all('li')
-        for startups in list_of_startups:  
+        for startups in list_of_startups:
             city.append(cities.span.text)
-            name.append(startups.h3.text) 
+            name.append(startups.h3.text)
             links.append(startups.a['href'])
-    rows = pd.DataFrame({'Name of Startup': name, 'Link': links , 'City' : city})
-    rows.to_csv("10000_startups/info.csv")
+    rows = pd.DataFrame({'Name': name, 'Link': links, 'City': city})
+    rows.to_csv("data/10000_startups/info.csv", index=False)
 
 
-
-
-def main(): 
+def main():
     scrapingsite = sys.argv[1]
     if scrapingsite == "startup-india":
         startup_india_scraping()
     elif scrapingsite == "1000startups":
         startup1000()
-    
 
 
-
-if __name__=="__main__":
-    main() 
-
+if __name__ == "__main__":
+    main()
