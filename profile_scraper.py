@@ -8,7 +8,8 @@ import pandas as pd
 import json
 
 options = Options()
-options.headless = True
+options.headless = True 
+options.add_argument("--log-level=3")
 driver = webdriver.Chrome("C:/chrome_driver/chromedriver", options=options) 
 
 df = pd.read_csv ('links.csv') 

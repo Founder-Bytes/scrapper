@@ -12,7 +12,8 @@ from selenium.webdriver.chrome.service import Service
 from dotenv import load_dotenv
 load_dotenv()
 options = Options()
-options.headless = True
+options.headless = True 
+options.add_argument("--log-level=3")
 service = Service(os.getenv("CHROME_DRIVER"))
 print(os.getenv("CHROME_DRIVER"))
 driver = webdriver.Chrome(
