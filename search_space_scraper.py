@@ -75,13 +75,52 @@ def startup1000():
     rows = pd.DataFrame({'Name': name, 'Link': links, 'City': city})
     rows.to_csv("data/10000_startups/info.csv", index=False)
 
+def industry_filter_scrape():  
+    industry = [] 
+    values = []
+    page = f"https://www.startupindia.gov.in/content/sih/en/search.html?roles=Startup&page=0"
+    driver.get(page)
+    content = driver.page_source
+    soup = BeautifulSoup(content, features='html5lib')   
+    div_sector = soup.find('div', class_='mCSB_container') 
+    list_of_cards = div_sector.find_all('li') 
+    for cards in list_of_cards: 
+        input = cards.find('input') 
+        value = input.get('value') 
+        industry.append(cards.find('span').text) 
+        values.append(value)
+    rows = pd.DataFrame({'industry_name': industry, 'value' : values})
+    rows.to_csv("startup_india/industry_links.csv", index=False)
+
+def sector_filter_scrape(): 
+    print("sector scraping") 
+    df = pd.read_csv ('startup_india/industry_links.csv')
+    for index, row in df.iterrows():  
+        industry_value = row['value'] 
+        page = f"https://www.startupindia.gov.in/content/sih/en/search.html?industries={industry_value}&roles=Startup&page=0" 
+        print(page)
+        driver.get(page)
+        content = driver.page_source 
+        soup = BeautifulSoup(content, features='html5lib')     
+        div_sector = soup.find('div', class_='filter-new') 
+        print(div_sector)
+        # print(soup)
+        # div_sector = soup.find('div', _class='accordion-section acc-2') 
+        val = soup.find('div', id_="mCSB_2_container")
+        print(val)
+
+
 
 def main():
     scrapingsite = sys.argv[1]
     if scrapingsite == "startup-india":
         startup_india_scraping()
     elif scrapingsite == "1000startups":
-        startup1000()
+        startup1000() 
+    elif scrapingsite == "industry_scrape":
+        industry_filter_scrape()
+    elif scrapingsite == "sector_scraping":
+        sector_filter_scrape()
 
 
 if __name__ == "__main__":
