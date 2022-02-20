@@ -14,15 +14,16 @@ def remove_duplicate_csv_common(path=None, field=None):
         no_of_entries = len(df_dict[field])
         for i in range(no_of_entries):
             name = df_dict[field][i]
-            link = df_dict['Link'][i]
+            link = df_dict["Link"][i]
             if name not in name_list:
                 name_list.append(name)
                 link_list.append(link)
             else:
                 duplicate_data[name] = link
-        rows_unique = pd.DataFrame({'Name': name_list, 'Link': link_list})
+        rows_unique = pd.DataFrame({"Name": name_list, "Link": link_list})
         rows_duplicate = pd.DataFrame(
-            {'Name': list(duplicate_data.keys()), 'Link': list(duplicate_data.values())})
+            {"Name": list(duplicate_data.keys()), "Link": list(duplicate_data.values())}
+        )
 
         path_list = path.split("/")[:-1]
         file_name = path.split("/")[-1]
@@ -44,9 +45,14 @@ def remove_duplicate_csv_common(path=None, field=None):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-path', '--path', help='Path of the CSV', required=True)
-parser.add_argument('-field', '--field', default='Name',
-                    help='Field you want to check for duplicate', required=True)
+parser.add_argument("-path", "--path", help="Path of the CSV", required=True)
+parser.add_argument(
+    "-field",
+    "--field",
+    default="Name",
+    help="Field you want to check for duplicate",
+    required=True,
+)
 
 args = parser.parse_args()
 
