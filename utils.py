@@ -40,23 +40,24 @@ def remove_duplicate_csv_common(path=None, field=None):
         rows_duplicate.to_csv(duplicate_path, index=False)
         rows_unique.to_csv(unique_path, index=False)
 
-    except Exception as e:
+    except Exception as e: 
+        print("here")
         print(e)
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-path", "--path", help="Path of the CSV", required=True)
-parser.add_argument(
-    "-field",
-    "--field",
-    default="Name",
-    help="Field you want to check for duplicate",
-    required=True,
-)
+# parser = argparse.ArgumentParser()
+# parser.add_argument("-path", "--path", help="Path of the CSV", required=True)
+# parser.add_argument(
+#     "-field",
+#     "--field",
+#     default="Name",
+#     help="Field you want to check for duplicate",
+#     required=True,
+# )
 
-args = parser.parse_args()
+# args = parser.parse_args()
 
-input_path = args.path
-field = args.field
+# input_path = args.path
+# field = args.field
 
-remove_duplicate_csv_common(input_path, field)
+# remove_duplicate_csv_common(input_path, field)

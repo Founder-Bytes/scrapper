@@ -10,6 +10,9 @@ import pandas as pd
 import sys
 from selenium.webdriver.chrome.service import Service
 from dotenv import load_dotenv
+from utils import remove_duplicate_csv_common
+import datetime  
+from tasks import log_store
 
 load_dotenv()
 options = Options()
@@ -20,15 +23,22 @@ print(os.getenv("CHROME_DRIVER"))
 driver = webdriver.Chrome(service=service, options=options)
 
 
-def startup_india_scraping():
+def startup_india_scraping(scraping_link): 
     links = []
     names = []
     count = 0
     mapping = {}
-    print("Scrapping Starting...")
-    while count < 18587:
+    print("Scrapping Starting...")  
+    total = int(get_total_number(scraping_link)) 
+    total = total/9 
+    count = 203
+    while count < total:
         try:
-            page = f"https://www.startupindia.gov.in/content/sih/en/search.html?roles=Startup&page={count}"
+            # page = f"https://www.startupindia.gov.in/content/sih/en/search.html?roles=Startup&page={count}"   
+            links = []
+            names = []
+            page = scraping_link  
+            page = f"{page}{count}"
             print(page)
             driver.get(page)
             content = driver.page_source
@@ -45,16 +55,22 @@ def startup_india_scraping():
                 link = "https://www.startupindia.gov.in" + link
                 links.append(link)
                 if name not in mapping.keys():
-                    mapping[name] = link
-            count += 1
+                    mapping[name] = link  
+            rows = pd.DataFrame({"Name": names, "Link": links}) 
+            output_path = "startup_india/industry_scraped_links.csv"
+            rows.to_csv(output_path, index=False,mode='a', header=False)    
+            action = "Scraped " + names
+            print(log_store(action,"startup_india_industry_wise",page,output_path))
+            count += 1  
+            print("dups")
+            remove_duplicate_csv_common("startup_india/industry_scraped_links.csv","Name") 
         except:
             pass
 
-    with open("data/startup_india/links.json", "w", encoding="utf-8") as f:
-        json.dump(mapping, f, ensure_ascii=False, indent=4)
-
-    rows = pd.DataFrame({"Name": names, "Link": links})
-    rows.to_csv("data/startup_india/test_links.csv", index=False)
+    # with open("data/startup_india/links.json", "w", encoding="utf-8") as f:
+    #     json.dump(mapping, f, ensure_ascii=False, indent=4)
+    # rows = pd.DataFrame({"Name": names, "Link": links})
+    # rows.to_csv("startup_india/industry_scraped_links.csv", index=False)
 
 
 def startup1000():
@@ -112,9 +128,36 @@ def sector_filter_scrape():
         val = soup.find("div", id_="mCSB_2_container")
         print(val)
 
+def industry_iteration(csv_path):  
+    df = pd.read_csv("startup_india/industry_links.csv") 
+    for index, row in df.iterrows():  
+        names = []  
+        time_stamps = []
+        industry_value = row["value"] 
+        industry_name = row["industry_name"]     
+        names.append(industry_name)     
+        page = f"https://www.startupindia.gov.in/content/sih/en/search.html?industries={industry_value}&roles=Startup&page=" 
+        startup_india_scraping(page)      
+        ts = time.time() 
+        time_Stamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') 
+        time_stamps.append(time_Stamp)
+        rows = pd.DataFrame({"Name": names,"time":time_stamps}) 
+        rows.to_csv("startup_india/industry_scraped_list.csv", index=False,mode='a', header=False)
+        
+
+def get_total_number(link):  
+    page = link
+    driver.get(page)
+    content = driver.page_source
+    soup = BeautifulSoup(content, features="html5lib") 
+    count = soup.find("span", class_="total")  
+    count = count.text
+    return count
+
 
 def main():
-    scrapingsite = sys.argv[1]
+    scrapingsite = sys.argv[1] 
+    csv_path = sys.argv[2]
     if scrapingsite == "startup-india":
         startup_india_scraping()
     elif scrapingsite == "1000startups":
@@ -122,7 +165,10 @@ def main():
     elif scrapingsite == "industry_scrape":
         industry_filter_scrape()
     elif scrapingsite == "sector_scraping":
-        sector_filter_scrape()
+        sector_filter_scrape() 
+    elif scrapingsite == "industry_iteration": 
+        industry_iteration(csv_path)
+
 
 
 if __name__ == "__main__":
