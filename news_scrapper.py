@@ -71,8 +71,8 @@ def home_page_scrapper(count):
 
 
 def main():
-    count = 27
-    while count < 1500:
+    count = 0
+    while count < 10:
         titles, links, blogs, summaries = home_page_scrapper(count)
         # print(titles)
         # print(links)
